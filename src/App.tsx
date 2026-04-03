@@ -27,7 +27,7 @@ export default function App() {
           <PixelButton 
             text="Hire me on Upwork"
             pixelColors={["#ffffff", "#A7F1E1", "#33D399"]}
-            beamColors={["#ffffff", "#16A700"]}
+            beamColors={["#F1F131", "#16A700"]}
             backgroundColor={upworkGreen}
             textColor="#ffffff"
             enableTextOutline={false}
@@ -79,7 +79,7 @@ export default function App() {
                 <PixelButton 
                   text="Hire me on Upwork"
                   pixelColors={["#ffffff", "#A7F1E1", "#33D399"]}
-                  beamColors={["#ffffff", upworkGreen]}
+                  beamColors={["#F1F131", upworkGreen]}
                   backgroundColor={upworkGreen}
                   textColor="#ffffff"
                   enableTextOutline={false}

@@ -41,6 +41,13 @@ interface PixelButtonProps {
   // Link Style
   enableUnderline?: boolean;
   enableHoverOpacity?: boolean;
+
+  // Icons
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
+  prefixIcon?: React.ReactNode;
+  suffixIcon?: React.ReactNode;
+  iconGap?: string;
 }
 
 class Particle {
@@ -189,6 +196,11 @@ export const PixelButton: React.FC<PixelButtonProps> = ({
   outlineWidth = 4,
   enableUnderline = false,
   enableHoverOpacity = false,
+  leftIcon,
+  rightIcon,
+  prefixIcon,
+  suffixIcon,
+  iconGap = "8px",
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -382,23 +394,35 @@ export const PixelButton: React.FC<PixelButtonProps> = ({
         />
       )}
 
-      {/* Label */}
-      <span 
-        className={`relative z-10 select-none transition-all duration-300 group-active:scale-95 ${
-          enableHoverOpacity ? 'group-hover:opacity-70' : ''
-        }`}
-        style={textHaloStyle}
-      >
-        {text}
-        {enableUnderline && (
-          <motion.div
-            className="absolute -bottom-1 left-0 h-[2px] bg-current origin-left"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: isHovered ? 1 : 0 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-          />
-        )}
-      </span>
+      {/* Label and Icons */}
+      <div className="relative z-10 flex items-center w-full h-full" style={{ gap: iconGap }}>
+        {leftIcon && <div className="flex-shrink-0">{leftIcon}</div>}
+        
+        <div className="flex-grow flex items-center justify-center" style={{ gap: iconGap }}>
+          {prefixIcon && <div className="flex-shrink-0">{prefixIcon}</div>}
+          
+          <span 
+            className={`relative select-none transition-all duration-300 group-active:scale-95 ${
+              enableHoverOpacity ? 'group-hover:opacity-70' : ''
+            }`}
+            style={textHaloStyle}
+          >
+            {text}
+            {enableUnderline && (
+              <motion.div
+                className="absolute -bottom-1 left-0 h-[2px] bg-current origin-left"
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: isHovered ? 1 : 0 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              />
+            )}
+          </span>
+
+          {suffixIcon && <div className="flex-shrink-0">{suffixIcon}</div>}
+        </div>
+
+        {rightIcon && <div className="flex-shrink-0">{rightIcon}</div>}
+      </div>
     </motion.div>
   );
 
