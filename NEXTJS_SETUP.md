@@ -53,6 +53,10 @@ interface PixelButtonProps {
   enableRipple?: boolean;
   enableBeam?: boolean;
   enableInnerGlow?: boolean;
+  enableHoverGlow?: boolean;
+  enableParticles?: boolean;
+  enableUnderline?: boolean;
+  enableHoverOpacity?: boolean;
   backgroundColor?: string;
   textColor?: string;
   beamColors?: [string, string];
@@ -67,55 +71,68 @@ interface PixelButtonProps {
 }
 
 class Particle {
-  x: number; y: number; size: number; color: string;
+  x: number; y: number; originX: number; originY: number; baseSize: number; color: string;
   baseAlpha: number; alpha: number; targetAlpha: number; scale: number; targetScale: number;
-  shimmerOffset: number;
+  shimmerOffset: number; borderRadius: number;
 
-  constructor(x: number, y: number, size: number, color: string) {
-    this.x = x; this.y = y; this.size = size; this.color = color;
-    this.baseAlpha = 0.1 + Math.random() * 0.2;
+  constructor(x: number, y: number, color: string) {
+    this.x = x; this.y = y; this.originX = x; this.originY = y;
+    const rand = Math.random();
+    if (rand < 0.6) { this.baseSize = 1; this.borderRadius = 0.1; }
+    else if (rand < 0.9) { this.baseSize = 2; this.borderRadius = 0.3; }
+    else { this.baseSize = 3; this.borderRadius = 0.5; }
+    this.color = color;
+    this.baseAlpha = 0.1 + Math.random() * 0.3;
     this.alpha = this.baseAlpha; this.targetAlpha = this.baseAlpha;
     this.scale = 0.6; this.targetScale = 0.6;
     this.shimmerOffset = Math.random() * Math.PI * 2;
   }
 
-  update(isHovered: boolean, ripple: any, time: number) {
+  update(mouseX: number, mouseY: number, isHovered: boolean, ripple: any, time: number) {
     this.targetScale = 0.6;
     this.targetAlpha = this.baseAlpha;
+    const ambientShimmer = Math.sin(time * 0.004 + this.shimmerOffset) * 0.1;
+    this.targetAlpha += ambientShimmer;
+
+    const floatX = Math.cos(time * 0.003 + this.shimmerOffset) * 0.8;
+    const floatY = Math.sin(time * 0.003 + this.shimmerOffset) * 0.8;
+    this.x = this.originX + floatX;
+    this.y = this.originY + floatY;
 
     if (isHovered) {
-      this.targetScale = 0.65;
-      this.targetAlpha = this.baseAlpha * 0.7; 
-      const jitter = Math.sin(time * 0.005 + this.shimmerOffset) * 0.1;
-      this.targetScale += jitter;
+      const fastJitter = Math.sin(time * 0.01 + this.shimmerOffset) * 0.2;
+      this.targetScale = 0.75 + fastJitter;
+      this.targetAlpha = Math.min(1, this.baseAlpha + 0.4 + fastJitter);
+      const dx = mouseX - this.x; const dy = mouseY - this.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 100) {
+        const factor = 1 - dist / 100;
+        this.targetScale += factor * 0.3;
+        this.targetAlpha += factor * 0.3;
+      }
     }
 
     if (ripple && ripple.active) {
       const rdx = ripple.x - this.x; const rdy = ripple.y - this.y;
       const rDist = Math.sqrt(rdx * rdx + rdy * rdy);
-      if (Math.abs(rDist - ripple.r) < 50) {
-        const factor = 1 - Math.abs(rDist - ripple.r) / 50;
-        this.targetScale += factor * 1.2;
-        this.targetAlpha = 1; 
+      if (Math.abs(rDist - ripple.r) < 45) {
+        const factor = 1 - Math.abs(rDist - ripple.r) / 45;
+        this.targetScale += factor * 1.5;
+        this.targetAlpha = 1;
       }
     }
 
-    this.scale += (this.targetScale - this.scale) * 0.1;
-    this.alpha += (this.targetAlpha - this.alpha) * 0.1;
+    const lerpSpeed = isHovered ? 0.15 : 0.2;
+    this.scale += (this.targetScale - this.scale) * lerpSpeed;
+    this.alpha += (this.targetAlpha - this.alpha) * lerpSpeed;
   }
 
   draw(ctx: CanvasRenderingContext2D, isHovered: boolean) {
     if (this.scale <= 0.01) return;
-    ctx.save();
     ctx.globalAlpha = Math.max(0, Math.min(1, this.alpha));
     ctx.fillStyle = this.color;
-    if (isHovered) {
-      ctx.shadowBlur = 4;
-      ctx.shadowColor = this.color;
-    }
-    const s = this.size * this.scale;
+    const s = this.baseSize * this.scale;
     ctx.fillRect(this.x - s / 2, this.y - s / 2, s, s);
-    ctx.restore();
   }
 }
 
@@ -125,24 +142,36 @@ export const PixelButton: React.FC<PixelButtonProps> = ({
   pixelColors = ["#16A700", "#3A453A", "#7A907A"],
   pixelSize = 5, pixelGap = 5,
   enableRipple = true, enableBeam = true, enableInnerGlow = true,
+  enableHoverGlow = true, enableParticles = true,
   backgroundColor = "#ffffff", textColor = "#3A453A",
   beamColors = ["#16A700", "#F1F7F4"], beamSpeed = 3,
-  borderRadius = "9999px", padding = "20px 56px", fontSize = "20px", fontWeight = 600,
+  borderRadius = "9999px", padding = "20px 56px", fontSize = "16px", fontWeight = 500,
   enableTextOutline = false, outlineColor = "#ffffff", outlineWidth = 4,
+  enableUnderline = false,
+  enableHoverOpacity = false,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
   const mousePos = useRef({ x: -1000, y: -1000 });
+  const isHoveredRef = useRef(false);
+  const rippleRef = useRef<{ x: number, y: number, r: number, active: boolean } | null>(null);
   const [isHovered, setIsHovered] = useState(false);
-  const [ripple, setRipple] = useState<any>(null);
+  const requestRef = useRef<number>(0);
 
-  const initParticles = useCallback((w: number, h: number) => {
+  const initParticles = useCallback((width: number, height: number) => {
     const particles: Particle[] = [];
-    const step = pixelSize + pixelGap;
-    for (let x = step/2; x < w; x += step) {
-      for (let y = step/2; y < h; y += step) {
-        particles.push(new Particle(x, y, pixelSize, pixelColors[Math.floor(Math.random() * pixelColors.length)]));
+    const cols = Math.floor(width / (pixelSize + pixelGap));
+    const rows = Math.floor(height / (pixelSize + pixelGap));
+    const offsetX = (width - cols * (pixelSize + pixelGap)) / 2 + pixelSize / 2;
+    const offsetY = (height - rows * (pixelSize + pixelGap)) / 2 + pixelSize / 2;
+
+    for (let i = 0; i < cols; i++) {
+      for (let j = 0; j < rows; j++) {
+        const x = offsetX + i * (pixelSize + pixelGap);
+        const y = offsetY + j * (pixelSize + pixelGap);
+        const color = pixelColors[Math.floor(Math.random() * pixelColors.length)];
+        particles.push(new Particle(x, y, color));
       }
     }
     particlesRef.current = particles;
@@ -151,32 +180,56 @@ export const PixelButton: React.FC<PixelButtonProps> = ({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+
     const updateSize = () => {
       const rect = canvas.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
-      canvas.width = rect.width * dpr; canvas.height = rect.height * dpr;
-      canvas.getContext('2d')?.scale(dpr, dpr);
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      const ctx = canvas.getContext('2d');
+      if (ctx) ctx.scale(dpr, dpr);
       initParticles(rect.width, rect.height);
     };
-    const ro = new ResizeObserver(updateSize);
-    if (containerRef.current) ro.observe(containerRef.current);
+
+    const resizeObserver = new ResizeObserver(updateSize);
+    if (containerRef.current) resizeObserver.observe(containerRef.current);
     updateSize();
+
     const animate = (time: number) => {
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      if (ripple?.active) {
-        setRipple((prev: any) => ({ ...prev, r: prev.r + 4, active: prev.r + 4 < Math.max(canvas.width, canvas.height) }));
+
+      ctx.clearRect(0, 0, canvas.width / (window.devicePixelRatio || 1), canvas.height / (window.devicePixelRatio || 1));
+
+      const currentRipple = rippleRef.current;
+      if (currentRipple && currentRipple.active) {
+        currentRipple.r += 6;
+        if (currentRipple.r > Math.max(canvas.width, canvas.height)) {
+          currentRipple.active = false;
+        }
       }
+
       particlesRef.current.forEach(p => {
-        p.update(isHovered, ripple, time);
-        p.draw(ctx, isHovered);
+        p.update(
+          mousePos.current.x,
+          mousePos.current.y,
+          isHoveredRef.current,
+          currentRipple,
+          time
+        );
+        p.draw(ctx, isHoveredRef.current);
       });
-      requestAnimationFrame(animate);
+
+      requestRef.current = requestAnimationFrame(animate);
     };
-    const raf = requestAnimationFrame(animate);
-    return () => { ro.disconnect(); cancelAnimationFrame(raf); };
-  }, [initParticles, isHovered, ripple]);
+
+    requestRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      resizeObserver.disconnect();
+      cancelAnimationFrame(requestRef.current);
+    };
+  }, [initParticles]);
 
   const textHalo = enableTextOutline ? {
     textShadow: `0 0 ${outlineWidth}px ${outlineColor}, 0 0 ${outlineWidth / 2}px ${outlineColor}`
@@ -187,15 +240,24 @@ export const PixelButton: React.FC<PixelButtonProps> = ({
       ref={containerRef}
       className={`relative flex items-center justify-center overflow-hidden cursor-pointer group ${className}`}
       style={{ padding, borderRadius, backgroundColor, color: textColor, fontSize, fontWeight }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => { setIsHovered(false); mousePos.current = { x: -1000, y: -1000 }; }}
+      onMouseEnter={() => {
+        setIsHovered(true);
+        isHoveredRef.current = true;
+      }}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        isHoveredRef.current = false;
+        mousePos.current = { x: -1000, y: -1000 };
+      }}
       onMouseMove={(e) => {
         const rect = containerRef.current?.getBoundingClientRect();
         if (rect) mousePos.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
       }}
       onClick={(e) => {
         const rect = containerRef.current?.getBoundingClientRect();
-        if (enableRipple && rect) setRipple({ x: e.clientX - rect.left, y: e.clientY - rect.top, r: 0, active: true });
+        if (enableRipple && rect) {
+          rippleRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top, r: 0, active: true };
+        }
         onClick?.(e);
       }}
       whileHover={{}} whileTap={{ scale: 0.98 }}
@@ -206,12 +268,31 @@ export const PixelButton: React.FC<PixelButtonProps> = ({
           <div className="absolute inset-[1px]" style={{ borderRadius, backgroundColor }} />
         </div>
       )}
-      <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ borderRadius, background: `radial-gradient(circle at ${mousePos.current.x}px ${mousePos.current.y}px, ${pixelColors[0]}22 0%, transparent 70%)` }} />
+      {enableHoverGlow && (
+        <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ borderRadius, background: `radial-gradient(circle at ${mousePos.current.x}px ${mousePos.current.y}px, ${pixelColors[0]}22 0%, transparent 70%)` }} />
+      )}
       {enableInnerGlow && (
         <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ borderRadius, boxShadow: `inset 0 0 25px ${pixelColors[0]}22`, border: `1px solid ${pixelColors[0]}11` }} />
       )}
-      <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" style={{ width: '100%', height: '100%' }} />
-      <span className="relative z-10 select-none" style={textHalo}>{text}</span>
+      {enableParticles && (
+        <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" style={{ width: '100%', height: '100%' }} />
+      )}
+      <span 
+        className={`relative z-10 select-none transition-all duration-300 group-active:scale-95 ${
+          enableHoverOpacity ? 'group-hover:opacity-70' : ''
+        }`}
+        style={textHalo}
+      >
+        {text}
+        {enableUnderline && (
+          <motion.div
+            className="absolute -bottom-1 left-0 h-[2px] bg-current origin-left"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: isHovered ? 1 : 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          />
+        )}
+      </span>
     </motion.div>
   );
 
@@ -240,7 +321,7 @@ export default function Home() {
         textColor="#3A453A"
         pixelSize={5}
         pixelGap={5}
-        fontWeight={600}
+        fontWeight={500}
         enableTextOutline={false}
       />
     </main>

@@ -1,99 +1,133 @@
 import { PixelButton } from './components/PixelButton';
 
 export default function App() {
-  return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-8 space-y-12 font-sans">
-      <div className="text-center space-y-4 max-w-2xl">
-        <h1 className="text-5xl font-bold tracking-tight text-gray-900">
-          The Interactive <span className="text-indigo-600">Pixel Button</span>
-        </h1>
-        <p className="text-lg text-gray-600">
-          A high-performance Canvas particle engine for modern web interfaces.
-          Hover to reveal, click to ripple.
-        </p>
-      </div>
+  const upworkGreen = "#16A700";
+  const textPrimary = "#3A453A";
+  const cardBg = "#F1F7F4";
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center justify-items-center w-full max-w-4xl">
-        {/* Upwork Style Button */}
-        <div className="flex flex-col items-center space-y-4 col-span-full">
+  const sizes = [
+    { label: "Hero (56px)", padding: "14px 48px", fontSize: "16px", height: "56px" },
+    { label: "Large (48px)", padding: "10px 36px", fontSize: "16px", height: "48px" },
+    { label: "Medium (36px)", padding: "6px 24px", fontSize: "14px", height: "36px" },
+    { label: "Small (32px)", padding: "4px 20px", fontSize: "12px", height: "32px" },
+    { label: "Extra Small (24px)", padding: "2px 16px", fontSize: "11px", height: "24px" },
+  ];
+
+  return (
+    <div className="min-h-screen bg-white font-sans text-[#3A453A]">
+      {/* Hero Section */}
+      <section className="py-24 px-8 flex flex-col items-center text-center space-y-8 bg-[#F1F7F4]">
+        <h1 className="text-[56px] font-bold leading-tight tracking-tight max-w-4xl">
+          Hire the world's best <span className="text-[#16A700]">freelance talent</span> for your next project.
+        </h1>
+        <p className="text-xl text-[#7A907A] max-w-2xl">
+          The Upwork Professional Style button system. High-impact, interactive, and built for conversion.
+        </p>
+        <div className="pt-4">
           <PixelButton 
             text="Hire me on Upwork"
-            pixelColors={["#14a800", "#3cba24", "#60d950"]}
-            beamColors={["#14a800", "#60d950"]}
-            backgroundColor="#ffffff"
-            textColor="#14a800"
-            enableTextOutline={false}
-            pixelSize={5}
-            pixelGap={5}
-            enableInnerGlow={true}
-            padding="20px 56px"
-            fontSize="20px"
-            fontWeight={600}
-          />
-          <span className="text-xs font-mono text-green-600 uppercase tracking-widest font-bold">Upwork Professional Style</span>
-        </div>
-
-        {/* Primary CTA - Indigo Theme */}
-        <div className="flex flex-col items-center space-y-4">
-          <PixelButton 
-            text="Get unlimited access"
-            pixelColors={["#4F46E5", "#818CF8", "#C7D2FE"]}
-            beamColors={["#4F46E5", "#818CF8"]}
-            backgroundColor="#ffffff"
-            textColor="#111827"
-            outlineColor="#ffffff"
-          />
-          <span className="text-xs font-mono text-gray-400 uppercase tracking-widest">Primary CTA</span>
-        </div>
-
-        {/* Success Theme - Green */}
-        <div className="flex flex-col items-center space-y-4">
-          <PixelButton 
-            text="Launch Project"
-            pixelColors={["#10B981", "#34D399", "#A7F3D0"]}
-            beamColors={["#10B981", "#6EE7B7"]}
-            backgroundColor="#ffffff"
-            textColor="#064E3B"
-            outlineColor="#ffffff"
-            pixelGap={4}
-            pixelSize={3}
-          />
-          <span className="text-xs font-mono text-gray-400 uppercase tracking-widest">Success State</span>
-        </div>
-
-        {/* Always-On Ambient Mode */}
-        <div className="flex flex-col items-center space-y-4">
-          <PixelButton 
-            text="Explore Features"
-            pixelAnimation="always"
-            pixelColors={["#F59E0B", "#FBBF24", "#FEF3C7"]}
-            beamColors={["#F59E0B", "#FCD34D"]}
-            backgroundColor="#ffffff"
-            textColor="#78350F"
-            outlineColor="#ffffff"
-            borderRadius="12px"
-            padding="12px 32px"
-          />
-          <span className="text-xs font-mono text-gray-400 uppercase tracking-widest">Ambient Mode</span>
-        </div>
-
-        {/* Dark Mode Variant */}
-        <div className="flex flex-col items-center space-y-4 p-8 bg-gray-900 rounded-3xl w-full">
-          <PixelButton 
-            text="Join the waitlist"
-            pixelColors={["#EC4899", "#F472B6", "#FBCFE8"]}
-            beamColors={["#EC4899", "#F9A8D4"]}
-            backgroundColor="#111827"
+            pixelColors={["#ffffff", "#A7F3D0", "#34D399"]}
+            beamColors={["#ffffff", "#16A700"]}
+            backgroundColor={upworkGreen}
             textColor="#ffffff"
-            outlineColor="#111827"
-            outlineWidth={2}
+            enableTextOutline={false}
+            padding="14px 56px"
+            fontSize="16px"
+            fontWeight={500}
           />
-          <span className="text-xs font-mono text-gray-500 uppercase tracking-widest">Dark Variant</span>
         </div>
-      </div>
+      </section>
 
-      <footer className="mt-20 text-sm text-gray-400 font-mono">
-        Built with React + Framer Motion + HTML5 Canvas
+      {/* Button Variants Grid */}
+      <section className="max-w-7xl mx-auto py-20 px-8 space-y-20">
+        
+        {/* White Background Variant */}
+        <div className="space-y-8">
+          <div className="border-b border-gray-100 pb-4">
+            <h2 className="text-2xl font-bold">White Background (Primary)</h2>
+            <p className="text-[#7A907A]">Clean, professional look for light sections.</p>
+          </div>
+          <div className="flex flex-wrap items-end gap-8">
+            {sizes.map((s) => (
+              <div key={`white-${s.label}`} className="flex flex-col items-center space-y-3">
+                <PixelButton 
+                  text="Hire me on Upwork"
+                  pixelColors={[upworkGreen, "#3cba24", "#60d950"]}
+                  beamColors={[upworkGreen, "#F1F7F4"]}
+                  backgroundColor="#ffffff"
+                  textColor={upworkGreen}
+                  enableTextOutline={false}
+                  padding={s.padding}
+                  fontSize={s.fontSize}
+                  fontWeight={500}
+                />
+                <span className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">{s.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Green Background Variant */}
+        <div className="space-y-8">
+          <div className="border-b border-gray-100 pb-4">
+            <h2 className="text-2xl font-bold">Upwork Green Background</h2>
+            <p className="text-[#7A907A]">High-contrast variant for maximum visibility.</p>
+          </div>
+          <div className="flex flex-wrap items-end gap-8">
+            {sizes.map((s) => (
+              <div key={`green-${s.label}`} className="flex flex-col items-center space-y-3">
+                <PixelButton 
+                  text="Hire me on Upwork"
+                  pixelColors={["#ffffff", "#A7F3D0", "#34D399"]}
+                  beamColors={["#ffffff", upworkGreen]}
+                  backgroundColor={upworkGreen}
+                  textColor="#ffffff"
+                  enableTextOutline={false}
+                  padding={s.padding}
+                  fontSize={s.fontSize}
+                  fontWeight={500}
+                />
+                <span className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">{s.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Tertiary (No Border) Variant */}
+        <div className="space-y-8">
+          <div className="border-b border-gray-100 pb-4">
+            <h2 className="text-2xl font-bold">Tertiary (No Border)</h2>
+            <p className="text-[#7A907A]">Subtle interaction for secondary actions.</p>
+          </div>
+          <div className="flex flex-wrap items-end gap-8">
+            {sizes.map((s) => (
+              <div key={`tertiary-${s.label}`} className="flex flex-col items-center space-y-3">
+                <PixelButton 
+                  text="Hire me on Upwork"
+                  enableBeam={false}
+                  enableInnerGlow={false}
+                  enableHoverGlow={false}
+                  enableParticles={false}
+                  enableRipple={false}
+                  enableUnderline={true}
+                  enableHoverOpacity={true}
+                  backgroundColor="transparent"
+                  textColor={upworkGreen}
+                  enableTextOutline={false}
+                  padding="4px 0"
+                  fontSize={s.fontSize}
+                  fontWeight={500}
+                />
+                <span className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">{s.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </section>
+
+      <footer className="py-12 border-t border-gray-100 text-center text-sm text-[#7A907A] font-mono">
+        Upwork Professional Button System • Built with React & Canvas
       </footer>
     </div>
   );
