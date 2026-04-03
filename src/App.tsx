@@ -26,7 +26,7 @@ export default function App() {
         <div className="pt-4">
           <PixelButton 
             text="Hire me on Upwork"
-            pixelColors={["#ffffff", "#A7F3D0", "#34D399"]}
+            pixelColors={["#ffffff", "#A7F1E1", "#33D399"]}
             beamColors={["#ffffff", "#16A700"]}
             backgroundColor={upworkGreen}
             textColor="#ffffff"
@@ -52,7 +52,7 @@ export default function App() {
               <div key={`white-${s.label}`} className="flex flex-col items-center space-y-3">
                 <PixelButton 
                   text="Hire me on Upwork"
-                  pixelColors={[upworkGreen, "#3cba24", "#60d950"]}
+                  pixelColors={["#16A700", "#1ABC26", "#56D956"]}
                   beamColors={[upworkGreen, "#F1F7F4"]}
                   backgroundColor="#ffffff"
                   textColor={upworkGreen}
@@ -78,7 +78,7 @@ export default function App() {
               <div key={`green-${s.label}`} className="flex flex-col items-center space-y-3">
                 <PixelButton 
                   text="Hire me on Upwork"
-                  pixelColors={["#ffffff", "#A7F3D0", "#34D399"]}
+                  pixelColors={["#ffffff", "#A7F1E1", "#33D399"]}
                   beamColors={["#ffffff", upworkGreen]}
                   backgroundColor={upworkGreen}
                   textColor="#ffffff"

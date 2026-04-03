@@ -165,7 +165,7 @@ export const PixelButton: React.FC<PixelButtonProps> = ({
   href,
   target = "_self",
   className = "",
-  pixelColors = ["#351FFF", "#5E4DFF", "#9F94FF"],
+  pixelColors = ["#16A700", "#1ABC26", "#56D956"],
   pixelSize = 4, // This is now used as a density multiplier
   pixelGap = 6,
   shimmerSpeed = 0.005,

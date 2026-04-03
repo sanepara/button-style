@@ -139,7 +139,7 @@ class Particle {
 export const PixelButton: React.FC<PixelButtonProps> = ({
   text = "Hire me on Upwork",
   onClick, href, target = "_self", className = "",
-  pixelColors = ["#16A700", "#3A453A", "#7A907A"],
+  pixelColors = ["#16A700", "#1ABC26", "#56D956"],
   pixelSize = 5, pixelGap = 5,
   enableRipple = true, enableBeam = true, enableInnerGlow = true,
   enableHoverGlow = true, enableParticles = true,
@@ -315,7 +315,7 @@ export default function Home() {
     <main className="min-h-screen bg-white flex flex-col items-center justify-center p-24">
       <PixelButton 
         text="Hire me on Upwork"
-        pixelColors={["#16A700", "#3A453A", "#7A907A"]}
+        pixelColors={["#16A700", "#1ABC26", "#56D956"]}
         beamColors={["#16A700", "#F1F7F4"]}
         backgroundColor="#ffffff"
         textColor="#3A453A"
