@@ -320,7 +320,7 @@ export const PixelButton: React.FC<PixelButtonProps> = ({
       style={{
         padding,
         borderRadius,
-        backgroundColor,
+        background: backgroundColor,
         color: textColor,
         fontSize,
         fontWeight,
@@ -355,7 +355,7 @@ export const PixelButton: React.FC<PixelButtonProps> = ({
           />
           <div 
             className="absolute inset-[1px]"
-            style={{ borderRadius, backgroundColor }}
+            style={{ borderRadius, background: backgroundColor }}
           />
         </div>
       )}
